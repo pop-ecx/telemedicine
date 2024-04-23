@@ -40,8 +40,11 @@ if ($services_result->num_rows > 0) {
 }
 
 
-// Query to fetch invoice data
-$query = "SELECT invoice_id, service_id, amount, status, time_raised FROM invoices_list WHERE user_id = ?";
+// Query to fetch invoice data along with service name
+$query = "SELECT i.invoice_id, i.service_id, s.name as service_name, i.amount, i.status, i.time_raised 
+FROM invoices_list i
+JOIN services_list s ON i.service_id = s.id
+WHERE i.user_id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $userId);
 $stmt->execute();
@@ -199,7 +202,7 @@ $conn->close();
             <tr>
                 <td>
                     <!-- Link to book the service, assuming booking.php and passing service ID -->
-                    <a href="booking.php?service_id=<?= urlencode($service['id']); ?>" title="Book <?= htmlspecialchars($service['name']); ?>" id="serviceLink">
+                    <a href="bookings.php?service_id=<?= urlencode($service['id']); ?>" title="Book <?= htmlspecialchars($service['name']); ?>" id="serviceLink">
                         <?= htmlspecialchars($service['name']); ?> 
                     </a>
                 </td>
@@ -226,7 +229,7 @@ $conn->close();
         </tr>
         <tr>
             <th>Invoice ID</th>
-            <th>Service ID</th>
+            <th>Service Name</th> <!-- Changed from Service ID -->
             <th>Amount</th>
             <th>Status</th>
             <th>Time Raised</th>
@@ -237,21 +240,22 @@ $conn->close();
         <?php foreach ($invoices as $invoice): ?>
         <tr>
             <td><?= htmlspecialchars($invoice['invoice_id']); ?></td>
-            <td><?= htmlspecialchars($invoice['service_id']); ?></td>
+            <td><?= htmlspecialchars($invoice['service_name']); ?></td> <!-- Display the service name -->
             <td>KE <?= number_format($invoice['amount'], 2); ?></td>
             <td><?= htmlspecialchars($invoice['status']); ?></td>
             <td><?= htmlspecialchars($invoice['time_raised']); ?></td>
             <td>
-                <?php if ($invoice['status'] != 'paid'): ?>
-                    <a href="pay_invoice.php?id=<?= $invoice['invoice_id']; ?>" class="btn btn-success">Pay</a>
+                <?php if (strtolower($invoice['status']) != 'paid'): ?>
+                    <a href="pay_invoice.php?invoice_id=<?= urlencode($invoice['invoice_id']); ?>" class="btn btn-success">Pay</a>
                 <?php else: ?>
-                    <a href="view_invoice.php?id=<?= $invoice['invoice_id']; ?>" class="btn btn-primary">View</a>
+                    <a href="view_invoice.php?invoice_id=<?= urlencode($invoice['invoice_id']); ?>" class="btn btn-primary">View</a>
                 <?php endif; ?>
             </td>
         </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
+
 
 
 </div>

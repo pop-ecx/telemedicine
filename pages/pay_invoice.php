@@ -12,42 +12,73 @@ if (!isset($_SESSION['user_id'])) {
 require_once '../includes/config.php';
 $conn = getConnection();
 
-$invoiceId = $_GET['invoice_id'] ?? null;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['pay_now'])) {
-    $invoiceId = $_POST['invoice_id'];
-    $amountPaid = $_POST['amount'];  // This would come from a payment gateway in a real scenario
+require 'PHPMailer-master/src/Exception.php';
+require 'PHPMailer-master/src/PHPMailer.php';
+require 'PHPMailer-master/src/SMTP.php';
 
-    
-    // Update the invoice status to 'Paid', store payer_phone, and update the code
-    $updateSql = "UPDATE invoices_list SET status = 'Paid', payer_phone = ?, code = ? WHERE invoice_id = ?";
-    $stmt = $conn->prepare($updateSql);
-    $stmt->bind_param("ssi", $_POST['payer_phone'], $_POST['confirmation_code'], $invoiceId);
-    $stmt->execute();
-    $stmt->close();
+// Get the invoice ID either from POST (if the form was submitted) or GET (initial page load)
+$invoiceId = $_POST['invoice_id'] ?? $_GET['invoice_id'] ?? null;
 
-    // Redirect to a confirmation page or back to invoices list
-    header('Location: payment_success.php');
-    exit();
-}
-
-// Fetch the invoice details to confirm the right one is being paid
-if ($invoiceId) {
-    $query = "SELECT * FROM invoices_list WHERE invoice_id = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $invoiceId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $invoice = $result->fetch_assoc();
-    $stmt->close();
-} else {
+if (!$invoiceId) {
     echo "Invalid Invoice ID.";
     exit;
 }
+
+// Attempt to fetch the invoice details first to ensure it's valid before any processing
+$query = "SELECT * FROM invoices_list WHERE invoice_id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $invoiceId);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($invoice = $result->fetch_assoc()) {
+    $stmt->close();
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['pay_now'])) {
+        // Since the invoice exists, process payment and update database
+        $updateSql = "UPDATE invoices_list SET status = 'Paid', payer_phone = ?, code = ? WHERE invoice_id = ?";
+        $stmt = $conn->prepare($updateSql);
+        $stmt->bind_param("ssi", $_POST['payer_phone'], $_POST['confirmation_code'], $invoiceId);
+        $stmt->execute();
+        $stmt->close();
+
+        // After updating, send confirmation email
+        $mail = new PHPMailer(true); // Exception handling enabled
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'smtp.office365.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'telemed@kijabehospital.org';
+            $mail->Password = 'Kijabe@2024###';
+            $mail->SMTPSecure = 'tls';
+            $mail->Port = 587;
+
+            $mail->setFrom('telemed@kijabehospital.org', 'Telemedicine Services');
+            $mail->addAddress($_POST['payer_email'], 'User'); // Add recipient from form
+            $mail->addAddress('ictmgr@kijabehospital.org', 'Correspondent'); // Additional recipient
+
+            $mail->isHTML(true);
+            $mail->Subject = 'Invoice Payment Confirmation';
+            $mail->Body = 'Your payment for Invoice ID ' . $invoiceId . ' has been successfully processed.';
+
+            $mail->send();
+            echo 'Message has been sent';
+        } catch (Exception $e) {
+            echo 'Message could not be sent. Mailer Error: ', $mail->ErrorInfo;
+        }
+
+        header('Location: payment_success.php');
+        exit();
+    }
+} else {
+    echo "Invoice not found.";
+    exit;
+}
+
 ?>
-
-
-
 
 
 <!doctype html>
