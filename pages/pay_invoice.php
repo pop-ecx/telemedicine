@@ -18,10 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['pay_now'])) {
     $invoiceId = $_POST['invoice_id'];
     $amountPaid = $_POST['amount'];  // This would come from a payment gateway in a real scenario
 
-    // Update the invoice status to 'Paid'
-    $updateSql = "UPDATE invoices_list SET status = 'Paid' WHERE invoice_id = ?";
+    
+    // Update the invoice status to 'Paid', store payer_phone, and update the code
+    $updateSql = "UPDATE invoices_list SET status = 'Paid', payer_phone = ?, code = ? WHERE invoice_id = ?";
     $stmt = $conn->prepare($updateSql);
-    $stmt->bind_param("i", $invoiceId);
+    $stmt->bind_param("ssi", $_POST['payer_phone'], $_POST['confirmation_code'], $invoiceId);
     $stmt->execute();
     $stmt->close();
 
@@ -89,6 +90,17 @@ if ($invoiceId) {
                 <form action="pay_invoice.php" method="post">
                     <input type="hidden" name="invoice_id" value="<?= htmlspecialchars($invoiceId) ?>">
                     <input type="hidden" name="amount" value="<?= htmlspecialchars($invoice['amount']) ?>">
+                    <!-- Payer Phone Input -->
+                    <div class="mb-3">
+                        <label for="payerPhone" class="form-label">Payer Phone:</label>
+                        <input type="text" class="form-control" id="payerPhone" name="payer_phone" required placeholder="Enter your phone number">
+                    </div>
+
+                    <!-- Confirmation Code Input -->
+                    <div class="mb-3">
+                        <label for="confirmationCode" class="form-label">Confirmation Code:</label>
+                        <input type="text" class="form-control" id="confirmationCode" name="confirmation_code" required placeholder="Enter confirmation code">
+                </div>
                     <button type="submit" name="pay_now" class="btn btn-primary">Pay Now</button>
                 </form>
             <?php else: ?>
