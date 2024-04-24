@@ -52,7 +52,7 @@ if ($invoice = $result->fetch_assoc()) {
             $mail->Host = 'smtp.office365.com';
             $mail->SMTPAuth = true;
             $mail->Username = 'telemed@kijabehospital.org';
-            $mail->Password = '';
+            $mail->Password = 'Kijabe@2024###';
             $mail->SMTPSecure = 'tls';
             $mail->Port = 587;
 
