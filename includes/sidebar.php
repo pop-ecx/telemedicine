@@ -53,7 +53,7 @@
             </a>
         </li>
         <li class="sidebar-item">
-            <a class="sidebar-link success-hover-bg" href="./ui-card.html" aria-expanded="false">
+            <a class="sidebar-link success-hover-bg" href="./uploads.php" aria-expanded="false">
                 <span class="aside-icon p-2 bg-light-success rounded-3">
                     <i class="ti ti-cards fs-7 text-success"></i>
                 </span>
@@ -61,7 +61,7 @@
             </a>
         </li>
         <li class="sidebar-item">
-            <a class="sidebar-link primary-hover-bg" href="./ui-forms.html" aria-expanded="false">
+            <a class="sidebar-link primary-hover-bg" href="./view_receipt.php" aria-expanded="false">
                 <span class="aside-icon p-2 bg-light-primary rounded-3">
                     <i class="ti ti-file-description fs-7 text-primary"></i>
                 </span>
@@ -69,7 +69,7 @@
             </a>
         </li>
         <li class="sidebar-item">
-            <a class="sidebar-link indigo-hover-bg" href="./ui-typography.html" aria-expanded="false">
+            <a class="sidebar-link indigo-hover-bg" href="./doctors_report.php" aria-expanded="false">
                 <span class="aside-icon p-2 bg-light-indigo rounded-3">
                     <i class="ti ti-typography fs-7 text-indigo"></i>
                 </span>

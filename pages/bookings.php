@@ -39,6 +39,7 @@ if ($services_result->num_rows > 0) {
     echo "0 results in services";
 }
 
+$serviceId = $_GET['service_id'] ?? null;
 
 // Query to fetch invoice data
 $query = "SELECT invoice_id, service_id, amount, status, time_raised FROM invoices_list WHERE user_id = ?";
@@ -157,9 +158,12 @@ $conn->close();
                           <label for="serviceSelect" class="form-label">Service</label>
                           <select class="form-select" id="serviceSelect" name="service_id" required>
                             <?php foreach ($services as $service): ?>
-                              <option value="<?= $service['id'] ?>"><?= htmlspecialchars($service['name']) ?></option>
+                                <option value="<?= $service['id'] ?>" <?= ($service['id'] == $serviceId) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($service['name']) ?>
+                                </option>
                             <?php endforeach; ?>
-                          </select>
+                        </select>
+
                         </div>
                         <div class="mb-3">
                   <label for="doctorInput" class="form-label">Doctor</label>

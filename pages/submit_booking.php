@@ -79,7 +79,7 @@ try {
     $mail->Host = 'smtp.office365.com';
     $mail->SMTPAuth = true;
     $mail->Username = 'telemed@kijabehospital.org'; // Replace with your SMTP username
-    $mail->Password = 'Kijabe@2024###'; // Replace with your SMTP password
+    $mail->Password = ''; // Replace with your SMTP password
     $mail->SMTPSecure = 'tls';
     $mail->Port = 587;
 
