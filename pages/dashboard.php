@@ -25,6 +25,20 @@ $stmt->bind_result($name, $username, $lastlogin);
 $stmt->fetch();
 $stmt->close();
 
+// Prepare and execute the query to get booking details
+$query = "SELECT user_id, doctor, service, platform, link, username, passcode FROM booking_details WHERE user_id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Initialize an array to hold all booking records
+$bookings = [];
+
+while ($row = $result->fetch_assoc()) {
+    $bookings[] = $row;
+}
+
 
 // SQL to fetch services data
 $services_query = "SELECT * FROM services_list";
@@ -82,6 +96,35 @@ $conn->close();
   <title>AIC Kijabe Hospital Telemedicine</title>
   <link rel="shortcut icon" type="image/png" href="assets/images/logos/favicon.png" />
   <link rel="stylesheet" href="assets/css/styles.min.css" />
+  <style>
+    .link-wrap {
+        max-width: 200px; /* Adjust based on your layout's needs */
+        overflow-wrap: break-word; /* Wraps the text to the next line */
+        word-wrap: break-word; /* Older browsers support */
+        word-break: break-all; /* Ensures break at any character */
+        white-space: normal; /* Overrides the default nowrap of table cells */
+    }
+
+     /* Reduce the spacing between table rows and adjust padding within cells */
+    .compact-table tbody tr th,
+    .compact-table tbody tr td {
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+
+    /* Minimize margins and padding within the card for a tighter layout */
+    .compact-card-body {
+        padding: 8px; /* Reduced padding */
+    }
+
+    /* Ensure the link wraps properly and doesn't overflow */
+    .link-wrap {
+        max-width: 150px; /* Adjust based on your layout's needs */
+        overflow-wrap: break-word;
+        word-break: break-all;
+        white-space: normal;
+    }
+  </style>
 </head>
 
 <body>
@@ -148,38 +191,49 @@ $conn->close();
 
 
 
-          <div class="col-lg-4">
-            <div class="row">
-              <div class="col-lg-12 col-sm-6">
-                <!-- User Profile Card -->
-<div class="card overflow-hidden">
-    <div class="card-body p-4">
-        <h5 class="card-title mb-10 fw-semibold">My Profile</h5>
-        <div class="row align-items-center">
-            <!-- User details column -->
-            <div class="col-md-9">
-                <h4 class="fw-semibold mb-3"><?= htmlspecialchars($name); ?></h4>
-                <div>
-                    <strong>Username:</strong> <?= htmlspecialchars($username); ?><br>
-                    <strong>Last Login:</strong> <?= htmlspecialchars($lastlogin); ?>
-                </div>
-                <div class="mt-3">
-                    <a href="update-profile.php" class="btn btn-primary">Update</a>
-                </div>
-            </div>
-            <!-- Avatar column -->
-            <div class="col-md-3 d-flex justify-content-center">
-                <img src="assets/images/profile/user1.jpg" alt="User Avatar" style="width: 70px; height: 70px; border-radius: 50%;">
+         <div class="col-lg-4">
+    <div class="row">
+        <div class="col-lg-12 col-sm-6">
+
+            <div class="card w-100">
+                <?php foreach ($bookings as $booking): ?>
+                    <div class="card-body compact-card-body">
+                      <h5 class="card-title fw-semibold">Meeting Details</h5>
+                        <h5 class="card-title"><?= htmlspecialchars($booking['doctor']); ?> - <?= htmlspecialchars($booking['service']); ?></h5>
+                        <table class="table table-striped compact-table">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Doctor</th>
+                                    <td><?= htmlspecialchars($booking['doctor']); ?></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Service</th>
+                                    <td><?= htmlspecialchars($booking['service']); ?></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Platform</th>
+                                    <td><?= htmlspecialchars($booking['platform']); ?></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Meeting Link</th>
+                                    <td>
+                                        <div class="link-wrap">
+                                            <a href="<?= htmlspecialchars($booking['link']); ?>" target="_blank"><?= htmlspecialchars($booking['link']); ?></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Credentials</th>
+                                    <td>Username: <?= htmlspecialchars($booking['username']); ?><br>Passcode: <?= htmlspecialchars($booking['passcode']); ?></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>
 </div>
-
-                </div>
-              </div>
-              
-          </div>
-        </div>
         
 <div class="table-responsive" data-simplebar>
     <table class="table table-borderless align-middle text-nowrap">

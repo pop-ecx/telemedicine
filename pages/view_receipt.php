@@ -124,7 +124,7 @@ $conn->close();
                 <?php foreach ($invoices as $invoice): ?>
                     <tr>
                         <td><?= htmlspecialchars($invoice['invoice_id']); ?></td>
-                        <td>$<?= htmlspecialchars($invoice['amount']); ?></td>
+                        <td>KE <?= htmlspecialchars($invoice['amount']); ?></td>
                         <td><?= htmlspecialchars($invoice['time_raised']); ?></td>
                         <td>
                             <a href="?download_invoice=<?= $invoice['invoice_id'] ?>" class="btn-download">Download Receipt</a>
