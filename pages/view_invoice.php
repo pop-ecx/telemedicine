@@ -4,9 +4,7 @@ error_reporting(E_ALL);
 
 require_once '../includes/config.php'; // Include your config file
 require_once 'vendor/autoload.php'; // Include Composer autoloader
-require_once 'Dompdf/Dompdf/autoload.inc.php';
 
-use Dompdf\Dompdf;
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
@@ -63,18 +61,7 @@ $pdfContent = "
     <p><strong>Time Raised:</strong> {$invoice['time_raised']}</p>
 ";
 
-// Initialize Dompdf
-$dompdf = new Dompdf();
 
-// Load HTML content
-$dompdf->loadHtml($pdfContent);
-
-// Render PDF (optional: set paper size and orientation)
-$dompdf->setPaper('A4', 'portrait');
-$dompdf->render();
-
-// Output PDF content
-$pdfOutput = $dompdf->output();
 
 // Output the PDF as attachment for download
 header('Content-Type: application/pdf');
@@ -96,6 +83,7 @@ $conn->close();
   <title>AIC Kijabe Hospital Telemedicine</title>
   <link rel="shortcut icon" type="image/png" href="assets/images/logos/favicon.png" />
   <link rel="stylesheet" href="assets/css/styles.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </head>
 
 <body>
@@ -120,9 +108,26 @@ $conn->close();
     <p>Status: <?= htmlspecialchars($invoice['status']) ?></p>
     <p>Time Raised: <?= htmlspecialchars($invoice['time_raised']) ?></p>
 
-    <!-- Download receipt button/link -->
-    <a href="<?= $receiptFilePath ?>" download="<?= $receiptFileName ?>">Download Receipt</a>
+    <!-- Download PDF button -->
+            <button id="download-pdf">Download PDF</button>
+            <script>
+                document.getElementById('download-pdf').addEventListener('click', function() {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
 
+                    doc.text('Invoice Receipt', 10, 10);
+                    doc.text(`Invoice ID: ${<?= json_encode($invoice['invoice_id']) ?>}`, 10, 20);
+                    doc.text(`User Name: ${<?= json_encode($invoice['user_name']) ?>}`, 10, 30);
+                    doc.text(`Service Name: ${<?= json_encode($invoice['service_name']) ?>}`, 10, 40);
+                    doc.text(`Amount: ${<?= json_encode($invoice['amount']) ?>}`, 10, 50);
+                    doc.text(`Status: ${<?= json_encode($invoice['status']) ?>}`, 10, 60);
+                    doc.text(`Time Raised: ${<?= json_encode($invoice['time_raised']) ?>}`, 10, 70);
+
+                    doc.save('invoice_receipt.pdf');
+                });
+            </script>
+        </div>
+        <?php include '../includes/foot.php'; ?>
 
 
 
