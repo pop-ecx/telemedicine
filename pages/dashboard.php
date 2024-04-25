@@ -290,25 +290,63 @@ $conn->close();
             <th>Action</th>
         </tr>
     </thead>
+
     <tbody>
         <?php foreach ($invoices as $invoice): ?>
-        <tr>
-            <td><?= htmlspecialchars($invoice['invoice_id']); ?></td>
-            <td><?= htmlspecialchars($invoice['service_name']); ?></td> <!-- Display the service name -->
-            <td>KE <?= number_format($invoice['amount'], 2); ?></td>
-            <td><?= htmlspecialchars($invoice['status']); ?></td>
-            <td><?= htmlspecialchars($invoice['time_raised']); ?></td>
-            <td>
-                <?php if (strtolower($invoice['status']) != 'paid'): ?>
-                    <a href="pay_invoice.php?invoice_id=<?= urlencode($invoice['invoice_id']); ?>" class="btn btn-success">Pay</a>
-                <?php else: ?>
-                    <a href="view_invoice.php?invoice_id=<?= urlencode($invoice['invoice_id']); ?>" class="btn btn-primary">View</a>
-                <?php endif; ?>
-            </td>
-        </tr>
+            <tr>
+                <td><?= isset($invoice['invoice_id']) ? htmlspecialchars($invoice['invoice_id']) : ''; ?></td>
+                <td><?= isset($invoice['service_name']) ? htmlspecialchars($invoice['service_name']) : ''; ?></td>
+                <td>KE <?= isset($invoice['amount']) ? number_format($invoice['amount'], 2) : ''; ?></td>
+                <td><?= isset($invoice['status']) ? htmlspecialchars($invoice['status']) : ''; ?></td>
+                <td><?= isset($invoice['time_raised']) ? htmlspecialchars($invoice['time_raised']) : ''; ?></td>
+                <td>
+                    <?php if (strtolower($invoice['status']) != 'paid'): ?>
+                        <a href="pay_invoice.php?invoice_id=<?= urlencode($invoice['invoice_id']); ?>" class="btn btn-success">Pay</a>
+                    <?php else: ?>
+                        <!-- Replace the view link with a PDF download button -->
+                        <button class="btn btn-primary download-pdf"
+                                data-invoice-id="<?= isset($invoice['invoice_id']) ? htmlspecialchars($invoice['invoice_id']) : ''; ?>"
+                                data-user-name="<?= isset($invoice['user_name']) ? htmlspecialchars($invoice['user_name']) : ''; ?>"
+                                data-service-name="<?= isset($invoice['service_name']) ? htmlspecialchars($invoice['service_name']) : ''; ?>"
+                                data-amount="<?= isset($invoice['amount']) ? htmlspecialchars($invoice['amount']) : ''; ?>"
+                                data-status="<?= isset($invoice['status']) ? htmlspecialchars($invoice['status']) : ''; ?>"
+                                data-time-raised="<?= isset($invoice['time_raised']) ? htmlspecialchars($invoice['time_raised']) : ''; ?>">
+                            View
+                        </button>
+                    <?php endif; ?>
+                </td>
+            </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script>
+    document.querySelectorAll('.download-pdf').forEach(button => {
+        button.addEventListener('click', function() {
+            const invoiceId = this.getAttribute('data-invoice-id');
+            const userName = this.getAttribute('data-user-name');
+            const serviceName = this.getAttribute('data-service-name');
+            const amount = this.getAttribute('data-amount');
+            const status = this.getAttribute('data-status');
+            const timeRaised = this.getAttribute('data-time-raised');
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.text('Invoice Receipt', 10, 10);
+            doc.text(`Invoice ID: ${invoiceId}`, 10, 20);
+            doc.text(`User Name: ${userName}`, 10, 30);
+            doc.text(`Service Name: ${serviceName}`, 10, 40);
+            doc.text(`Amount: KE ${amount}`, 10, 50);
+            doc.text(`Status: ${status}`, 10, 60);
+            doc.text(`Time Raised: ${timeRaised}`, 10, 70);
+
+            doc.save(`invoice_${invoiceId}_receipt.pdf`);
+        });
+    });
+</script>
 
 
 

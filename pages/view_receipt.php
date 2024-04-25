@@ -4,9 +4,9 @@ error_reporting(E_ALL);
 
 require_once '../includes/config.php'; // Include your config file
 require_once 'vendor/autoload.php'; // Include Composer autoloader
-require_once 'Dompdf/Dompdf/autoload.inc.php';
 
-use Dompdf\Dompdf;
+
+
 
 session_start();
 
@@ -121,17 +121,17 @@ $conn->close();
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($invoices as $invoice): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($invoice['invoice_id']); ?></td>
-                        <td>KE <?= htmlspecialchars($invoice['amount']); ?></td>
-                        <td><?= htmlspecialchars($invoice['time_raised']); ?></td>
-                        <td>
-                            <a href="?download_invoice=<?= $invoice['invoice_id'] ?>" class="btn-download">Download Receipt</a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
+                    <?php foreach ($invoices as $invoice): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($invoice['invoice_id']); ?></td>
+                            <td>KE <?= number_format($invoice['amount'], 2); ?></td>
+                            <td><?= htmlspecialchars($invoice['time_raised']); ?></td>
+                            <td>
+                                <button onclick="downloadPDF('<?= $invoice['invoice_id']; ?>', '<?= number_format($invoice['amount'], 2); ?>', '<?= $invoice['time_raised']; ?>')" class="btn btn-primary">Receipt</button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
         </table>
     <?php else: ?>
         <p>No paid invoices available.</p>
@@ -144,6 +144,19 @@ $conn->close();
       </div>
     </div>
   </div>
+  <script>
+    function downloadPDF(invoiceId, amount, timeRaised) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.text('Invoice Receipt', 10, 10);
+        doc.text(`Invoice ID: ${invoiceId}`, 10, 20);
+        doc.text(`Amount: KE ${amount}`, 10, 30);
+        doc.text(`Time Raised: ${timeRaised}`, 10, 40);
+
+        doc.save(`invoice-${invoiceId}-receipt.pdf`);
+    }
+  </script>
   <script src="assets/libs/jquery/dist/jquery.min.js"></script>
   <script src="assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/sidebarmenu.js"></script>
@@ -151,5 +164,6 @@ $conn->close();
   <script src="assets/libs/apexcharts/dist/apexcharts.min.js"></script>
   <script src="assets/libs/simplebar/dist/simplebar.js"></script>
   <script src="assets/js/dashboard.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </body>
 </html>

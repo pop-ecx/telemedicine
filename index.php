@@ -47,7 +47,19 @@ include 'includes/functions.php';
                                 <div class="form-group">
                                     <input type="password" name="password" class="form-control _ge_de_ol" placeholder="Enter Password" required aria-required="true">
                                 </div>
-                                <div class="checkbox form-group">
+                             
+                                <div class="form-group">
+                                    <button type="submit" class="_btn_04" style="width: 100%; color: white; background-color: #2b3990; border: none; border-radius: 20px; padding: 10px;">
+                                        Login
+                                    </button>
+                                </div>
+                                <!-- New Register Button -->
+                                <div class="form-group">
+                                    <a href="register.php" class="_btn_04" style="width: 100%; color: white; background-color: #2b3990; border: none; border-radius: 20px; padding: 10px;">
+                                        Register
+                                    </a>
+                                </div>
+                                   <div class="checkbox form-group">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="rememberMe">
                                         <label class="form-check-label" for="rememberMe">
@@ -55,11 +67,6 @@ include 'includes/functions.php';
                                         </label>
                                     </div>
                                     <a href="#">Forgot Password</a>
-                                </div>
-                                <div class="form-group">
-                                    <button type="submit" class="_btn_04" style="width: 100%; color: white; background-color: #2b3990; border: none; border-radius: 20px; padding: 10px;">
-                                        Login
-                                    </button>
                                 </div>
                             </form>
                         </div>
